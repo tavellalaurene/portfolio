@@ -1,0 +1,117 @@
+# All the text on the home page. Edit freely: the build checks the shape.
+# A text can be a plain string (same in both modes) or:
+#   key:
+#     lead: Text for Lead mode
+#     build: Text for Build mode (optional, falls back to lead)
+# Leave an optional field out instead of writing a placeholder: it simply won't show.
+
+- id: site
+  name: Laurène Tavella
+  role: Development Team Lead
+  org: Dpt.
+  city: Montréal
+  description: Engineering leader in backend, APIs and Unity full stack. I lead a team of 10 and drive AI adoption across the whole company.
+
+  # Add the full URLs when ready, e.g. https://www.linkedin.com/in/...
+  links: {}
+
+  hero:
+    headline:
+      main:
+        lead: I lead teams.
+        build: $ lead --teams
+      accent:
+        lead: I ship code.
+        build: "&& ship --code"
+    intro: Engineering leader in backend, APIs and Unity full stack. I lead a team of 10 and drive AI adoption across the whole company.
+
+  scope:
+    heading:
+      main:
+        lead: "What I do "
+        build: "$ whoami "
+      accent:
+        lead: right now.
+        build: --now
+    intro: I lead the development team at Dpt. in Montréal, a 25-person studio.
+    kpis:
+      - value: "10"
+        label:
+          lead: people in my team
+          build: team_size
+      - value: "25"
+        label:
+          lead: people in the AI program
+          build: ai_program_reach
+      - value: "4"
+        label:
+          lead: "teams: dev, design, prod, direction"
+          build: teams_reached
+      - value: Director of Production
+        label:
+          lead: I report to
+          build: reports_to
+    cards:
+      - title:
+          lead: Lead the dev team
+          build: lead(team)
+        body: "A mixed team of 10: seniors and juniors, engineers and non-engineers, Unity and creative developers, QA."
+      - title:
+          lead: Drive AI adoption
+          build: "adopt(ai, { teams: 'all' })"
+        body: The company-wide program that brings AI tools into every team’s daily work.
+      - title:
+          lead: Stay hands-on
+          build: ship(code)
+        body: Backend, APIs and Unity full stack. I still write, review and ship code.
+
+  impact:
+    heading:
+      main:
+        lead: "Bringing AI to "
+        build: "$ ai.adoption "
+      accent:
+        lead: every team.
+        build: --phase 1
+    intro: I lead the company’s AI adoption program, built on people’s real tasks instead of generic demos. I also created the organization’s first adoption measures.
+    phase: Phase 1 · 3 months
+    stats:
+      - value: 100%
+        label: participation
+        base: all 25 people, across dev, design, production and direction
+      - value: 91%
+        label:
+          lead: changed how they work
+          build: changed_how_they_work
+      - value: 35%
+        label:
+          lead: already getting measurable results
+          build: measurable_results
+    methods:
+      - lead: Hands-on training
+        build: --training
+      - lead: Practical workshops
+        build: --workshops
+      - lead: Hackathons
+        build: --hackathons
+      - lead: Knowledge sharing
+        build: --knowledge-sharing
+
+  work:
+    heading:
+      main:
+        lead: "Shipped, "
+        build: "$ git log "
+      accent:
+        lead: and shipping.
+        build: --deploys
+    intro: Museums, festivals, public spaces and games, from Montréal to Singapore.
+
+  contact:
+    heading:
+      main:
+        lead: Let’s build
+        build: $ curl -X POST
+      accent:
+        lead: something.
+        build: /hello

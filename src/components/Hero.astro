@@ -1,0 +1,105 @@
+---
+import type { CollectionEntry } from "astro:content";
+import { t } from "../lib/text";
+
+interface Props {
+  site: CollectionEntry<"site">["data"];
+}
+
+const { site } = Astro.props;
+const { headline, intro } = site.hero;
+---
+
+<section id="top" class="hero-wrap">
+  <div class="container hero">
+    <div class="glow glow--a" aria-hidden="true"></div>
+    <div class="glow glow--b" aria-hidden="true"></div>
+    <div class="content">
+      <p class="kicker">{site.role} · {site.org} · {site.city}</p>
+      <h1 class="display title">
+        {t(headline.main)}<br /><span class="accent">{t(headline.accent)}</span>
+      </h1>
+      <div class="bottom">
+        <p class="intro muted">{t(intro)}</p>
+        <div class="actions">
+          <a class="button button--primary" href="#work">See the work</a>
+          {site.links.linkedin && <a class="button" href={site.links.linkedin} rel="me">LinkedIn</a>}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero-wrap {
+    padding: 8px var(--gutter) 0;
+  }
+  .hero {
+    position: relative;
+    min-height: 600px;
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--surface);
+    border: 1px solid var(--border);
+  }
+  .content {
+    position: relative;
+    min-height: 600px;
+    padding: 56px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 32px;
+  }
+  .kicker {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .title {
+    font-size: clamp(54px, 8.6vw, 124px);
+  }
+  .bottom {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .intro {
+    max-width: 520px;
+    font-size: 18px;
+  }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .glow {
+    position: absolute;
+    width: 520px;
+    height: 520px;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.14;
+    pointer-events: none;
+  }
+  .glow--a {
+    right: -120px;
+    top: -160px;
+    background: var(--accent);
+  }
+  .glow--b {
+    left: -140px;
+    bottom: -200px;
+    background: var(--accent-2);
+  }
+  @media (max-width: 700px) {
+    .content {
+      padding: 32px 24px;
+    }
+  }
+  @media (prefers-reduced-transparency: reduce) {
+    .glow {
+      display: none;
+    }
+  }
+</style>

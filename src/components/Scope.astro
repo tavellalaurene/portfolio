@@ -1,0 +1,127 @@
+---
+import type { CollectionEntry } from "astro:content";
+import Heading from "./Heading.astro";
+import { t } from "../lib/text";
+
+interface Props {
+  scope: CollectionEntry<"site">["data"]["scope"];
+}
+
+const { scope } = Astro.props;
+---
+
+<section id="scope" class="section">
+  <div class="container stack">
+    <div class="head">
+      <Heading label="01 · Scope" heading={scope.heading} />
+      <p class="muted side">{t(scope.intro)}</p>
+    </div>
+
+    <ul class="kpis" role="list">
+      {
+        scope.kpis.map((kpi) => (
+          <li class="kpi">
+            <span class:list={["value", { "value--text": !/^[\d.,%+]+$/.test(kpi.value) }]}>{kpi.value}</span>
+            <span class="muted">{t(kpi.label)}</span>
+          </li>
+        ))
+      }
+    </ul>
+
+    <ul class="cards" role="list">
+      {
+        scope.cards.map((card, i) => (
+          <li class="card scope-card">
+            <span class="num">{String(i + 1).padStart(2, "0")}</span>
+            <h3>{t(card.title)}</h3>
+            <p class="muted body">{t(card.body)}</p>
+            {card.outcome && <p class="outcome">→ {t(card.outcome)}</p>}
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .stack {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+  }
+  .head {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 24px;
+  }
+  .side {
+    max-width: 380px;
+  }
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .kpis {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+    gap: 12px;
+  }
+  .kpi {
+    padding: 20px 22px;
+    border-radius: var(--radius);
+    background: var(--tile);
+    border: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 14px;
+  }
+  .value {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 36px;
+    line-height: 1;
+    letter-spacing: var(--display-track);
+    font-variant-numeric: lining-nums;
+    color: var(--accent);
+  }
+  /* Words instead of a number: smaller so the tile keeps the same height. */
+  .value--text {
+    font-size: 26px;
+    line-height: 1.1;
+  }
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+    gap: 20px;
+  }
+  .scope-card {
+    min-height: 260px;
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .num {
+    margin-bottom: 10px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--accent);
+  }
+  h3 {
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .body {
+    flex: 1 1 auto;
+  }
+  .outcome {
+    padding-top: 12px;
+    border-top: 1px solid var(--line);
+    font-size: 15px;
+  }
+</style>

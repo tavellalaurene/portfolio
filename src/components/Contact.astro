@@ -1,0 +1,66 @@
+---
+import type { CollectionEntry } from "astro:content";
+import Heading from "./Heading.astro";
+import { t } from "../lib/text";
+
+interface Props {
+  site: CollectionEntry<"site">["data"];
+}
+
+const { site } = Astro.props;
+const { contact, links } = site;
+const hasLinks = Boolean(links.linkedin || links.github);
+---
+
+<section id="contact" class="section last">
+  <div class="container panel">
+    <Heading label="04 · Contact" heading={contact.heading} class="big" breakLine />
+    {contact.intro && <p class="muted">{t(contact.intro)}</p>}
+    {
+      hasLinks && (
+        <div class="actions">
+          {links.linkedin && (
+            <a class="button button--primary" href={links.linkedin} rel="me">
+              Message me on LinkedIn
+            </a>
+          )}
+          {links.github && (
+            <a class="button" href={links.github} rel="me">
+              GitHub
+            </a>
+          )}
+        </div>
+      )
+    }
+  </div>
+  <footer class="container footer muted">
+    <span>© {new Date().getFullYear()} {site.name} · {site.city}</span>
+  </footer>
+</section>
+
+<style>
+  .last {
+    padding-bottom: 40px;
+  }
+  .panel {
+    border-radius: var(--radius);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: clamp(32px, 6vw, 80px);
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+  }
+  .panel :global(.big) {
+    font-size: clamp(56px, 8.4vw, 124px);
+  }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .footer {
+    margin-top: 28px;
+    font-size: 14px;
+  }
+</style>

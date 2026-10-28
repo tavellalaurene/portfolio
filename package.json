@@ -1,0 +1,22 @@
+{
+  "name": "portfolio",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "node scripts/checks.mjs source",
+    "check:dist": "node scripts/checks.mjs dist",
+    "verify": "npm run check && npm run build && npm run check:dist"
+  },
+  "dependencies": {
+    "@fontsource/cormorant-garamond": "^5.3.0",
+    "@fontsource/geist-mono": "^5.3.0",
+    "@fontsource/inter-tight": "^5.3.0",
+    "astro": "^7.4.3"
+  },
+  "engines": {
+    "node": ">=24"
+  }
+}

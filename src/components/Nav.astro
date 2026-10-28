@@ -1,0 +1,66 @@
+---
+interface Props {
+  name: string;
+}
+
+const { name } = Astro.props;
+const links = [
+  { href: "#scope", label: "Scope" },
+  { href: "#impact", label: "Impact" },
+  { href: "#work", label: "Work" },
+  { href: "#contact", label: "Contact" },
+];
+---
+
+<header class="bar">
+  <nav class="container nav" aria-label="Main">
+    <a class="logo" href="#top">{name}</a>
+    <ul>
+      {links.map((link) => <li><a href={link.href}>{link.label}</a></li>)}
+    </ul>
+  </nav>
+</header>
+
+<style>
+  .bar {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    padding: 16px var(--gutter);
+  }
+  .nav {
+    min-height: 64px;
+    padding: 8px 22px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    border-radius: var(--radius);
+    background: color-mix(in srgb, var(--surface) 70%, transparent);
+    border: 1px solid var(--border);
+    backdrop-filter: blur(20px) saturate(1.5);
+  }
+  .logo {
+    font-weight: 600;
+    font-size: 17px;
+  }
+  ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 22px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 15px;
+  }
+  a:hover {
+    color: var(--accent);
+  }
+  @media (prefers-reduced-transparency: reduce) {
+    .nav {
+      backdrop-filter: none;
+      background: var(--surface);
+    }
+  }
+</style>

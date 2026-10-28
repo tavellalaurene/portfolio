@@ -1,0 +1,54 @@
+/* Design tokens. Lead is the default; Build overrides colors and the display font only.
+   Layout, spacing, radii and body/label fonts are shared so both modes keep one skeleton. */
+:root {
+  --font-display: "Cormorant Garamond", Georgia, serif;
+  --font-body: "Inter Tight", system-ui, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, monospace;
+
+  --display-track: -0.02em;
+  --accent-style: italic;
+
+  --radius: 16px;
+  --radius-sm: 10px;
+  --max-width: 1240px;
+  --gutter: 24px;
+  --section-gap: 130px;
+
+  --page: #e4e5ea;
+  --surface: #ececf1;
+  --card: rgba(255, 255, 255, 0.62);
+  --tile: rgba(255, 255, 255, 0.5);
+  --border: rgba(255, 255, 255, 0.9);
+  --line: rgba(20, 20, 24, 0.18);
+  --ink: #141418;
+  --muted: #4b4c57;
+  --accent: #5b21b6;
+  --accent-2: #a4561c;
+
+  --dark: #141418;
+  --dark-ink: #eef0ec;
+  --dark-muted: #c5cac4;
+  --dark-accent: #c9b6f5;
+  --dark-accent-2: #e3a574;
+}
+
+[data-mode="build"] {
+  --font-display: "Geist Mono", ui-monospace, monospace;
+  --display-track: -0.04em;
+  --accent-style: normal;
+
+  --page: #08090a;
+  --surface: #0c1410;
+  --card: #0c1410;
+  --tile: rgba(255, 255, 255, 0.05);
+  --border: rgba(255, 255, 255, 0.12);
+  --line: rgba(255, 255, 255, 0.22);
+  --ink: #e6efe8;
+  --muted: #a3b5a9;
+  --accent: #e8a15a;
+  --accent-2: #9fd3b4;
+
+  --dark: #0c1410;
+  --dark-accent: #e8a15a;
+  --dark-accent-2: #9fd3b4;
+}

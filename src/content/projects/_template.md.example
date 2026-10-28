@@ -1,0 +1,17 @@
+---
+# Copy this file to my-project.md (in this folder) and fill it in.
+# Only name, where, type and status are required. Leave the rest out until you have it.
+name: My project
+where: Client or venue, City
+type: pro            # pro | personal
+status: live         # live | coming-soon
+order: 80            # lower numbers come first
+summary: One line on what it is.
+roles: [Tech lead, Architecture]
+url: https://example.com
+# image: ./images/my-project.jpg   # 16:10, metadata stripped
+# imageAlt: What the image shows
+draft: true          # true = checked but not published
+---
+
+Optional longer text, for a future case study page.

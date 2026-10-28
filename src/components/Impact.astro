@@ -1,0 +1,160 @@
+---
+import type { CollectionEntry } from "astro:content";
+import Heading from "./Heading.astro";
+import { t } from "../lib/text";
+
+interface Props {
+  impact: CollectionEntry<"site">["data"]["impact"];
+}
+
+const { impact } = Astro.props;
+const colors = ["var(--dark-accent)", "var(--dark-accent-2)", "#ffffff"];
+---
+
+<section id="impact" class="section">
+  <div class="container panel">
+    <div class="glow" aria-hidden="true"></div>
+    <div class="head">
+      <Heading label="02 · Impact" heading={impact.heading} />
+      <p class="intro">{t(impact.intro)}</p>
+    </div>
+
+    <ul class="stats" role="list">
+      {
+        impact.stats.map((stat, i) => (
+          <li class="stat" style={`--c: ${colors[i % colors.length]}`}>
+            <span class="value">{stat.value}</span>
+            <span class="label-text">{t(stat.label)}</span>
+            {stat.base && <span class="base">{t(stat.base)}</span>}
+            <span class="bar" aria-hidden="true">
+              <span style={`width: ${stat.value}`} />
+            </span>
+          </li>
+        ))
+      }
+    </ul>
+
+    <div class="foot">
+      <ul class="methods" role="list">
+        {impact.methods.map((method) => <li>{t(method)}</li>)}
+      </ul>
+      <span class="phase">{impact.phase}</span>
+    </div>
+  </div>
+</section>
+
+<style>
+  .panel {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius);
+    background: var(--dark);
+    color: var(--dark-ink);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: clamp(32px, 5vw, 64px);
+    display: flex;
+    flex-direction: column;
+    gap: 48px;
+  }
+  .panel :global(.label),
+  .panel :global(.accent) {
+    color: var(--dark-accent);
+  }
+  .glow {
+    position: absolute;
+    width: 520px;
+    height: 520px;
+    left: -160px;
+    top: -200px;
+    border-radius: 50%;
+    background: var(--accent);
+    filter: blur(80px);
+    opacity: 0.35;
+    pointer-events: none;
+  }
+  .head,
+  .stats,
+  .foot {
+    position: relative;
+  }
+  .head {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .intro {
+    font-size: 18px;
+    color: var(--dark-muted);
+  }
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+    gap: 20px;
+  }
+  .stat {
+    padding: 26px;
+    border-radius: var(--radius);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .value {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(64px, 7vw, 100px);
+    line-height: 0.95;
+    letter-spacing: var(--display-track);
+    font-variant-numeric: lining-nums;
+    color: var(--c);
+  }
+  .label-text {
+    font-size: 15px;
+  }
+  .base {
+    font-size: 13px;
+    color: var(--dark-muted);
+  }
+  .bar {
+    height: 6px;
+    border-radius: 3px;
+    background: rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+  }
+  .bar span {
+    display: block;
+    height: 100%;
+    background: var(--c);
+  }
+  .foot {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+  }
+  .methods {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .methods li {
+    font-size: 13px;
+    padding: 8px 14px;
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+  }
+  .phase {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--dark-muted);
+  }
+</style>

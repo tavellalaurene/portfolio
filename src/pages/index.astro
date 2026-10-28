@@ -1,0 +1,29 @@
+---
+import { getCollection, getEntry } from "astro:content";
+import Base from "../layouts/Base.astro";
+import Nav from "../components/Nav.astro";
+import Hero from "../components/Hero.astro";
+import Scope from "../components/Scope.astro";
+import Impact from "../components/Impact.astro";
+import Work from "../components/Work.astro";
+import Contact from "../components/Contact.astro";
+
+const entry = await getEntry("site", "site");
+if (!entry) throw new Error("src/content/site.yaml must contain an entry with id: site");
+const site = entry.data;
+
+const projects = (await getCollection("projects", ({ data }) => !data.draft)).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+---
+
+<Base title={`${site.name} · ${site.role}`} description={site.description}>
+  <Nav name={site.name} />
+  <main>
+    <Hero site={site} />
+    <Scope scope={site.scope} />
+    <Impact impact={site.impact} />
+    <Work work={site.work} projects={projects} />
+    <Contact site={site} />
+  </main>
+</Base>

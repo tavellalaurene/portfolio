@@ -1,0 +1,12 @@
+# dependencies and build output
+node_modules/
+dist/
+.astro/
+
+# private notes and unpublished material: never committed
+private/
+
+# local environment
+.env
+.env.*
+.DS_Store

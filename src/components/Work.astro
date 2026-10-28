@@ -1,0 +1,145 @@
+---
+import type { CollectionEntry } from "astro:content";
+import { Image } from "astro:assets";
+import Heading from "./Heading.astro";
+import { t } from "../lib/text";
+
+interface Props {
+  work: CollectionEntry<"site">["data"]["work"];
+  projects: CollectionEntry<"projects">[];
+}
+
+const { work, projects } = Astro.props;
+---
+
+<section id="work" class="section">
+  <div class="container stack">
+    <div class="head">
+      <Heading label="03 · Work" heading={work.heading} />
+      <p class="muted intro">{t(work.intro)}</p>
+    </div>
+
+    <ul class="grid" role="list">
+      {
+        projects.map(({ data: p }, i) => (
+          <li class:list={["card", "project", { "project--wide": i === 0 }]}>
+            <div class="visual">
+              {p.image && <Image src={p.image} alt={p.imageAlt ?? ""} widths={[480, 960]} sizes="(max-width: 700px) 100vw, 50vw" />}
+              {p.status === "coming-soon" && <span class="soon">Coming soon</span>}
+            </div>
+            <div class="body">
+              <div class="tags">
+                <span class="tag">{p.type}</span>
+                <span class:list={["tag", { "tag--live": p.status === "live" }]}>
+                  {p.status === "live" ? "Live" : "Coming soon"}
+                </span>
+              </div>
+              <h3>{p.url ? <a href={p.url}>{p.name}</a> : p.name}</h3>
+              <p class="muted">
+                {p.where}
+                {p.summary && <> · {t(p.summary)}</>}
+              </p>
+              {p.roles.length > 0 && <p class="roles">My roles: {p.roles.join(" · ")}</p>}
+            </div>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .stack {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+  }
+  .head {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 14px;
+  }
+  .intro {
+    max-width: 560px;
+  }
+  .grid {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  .project {
+    flex: 1 1 380px;
+    min-width: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .project--wide {
+    flex: 2 1 620px;
+  }
+  /* Grows to fill the row when a neighbour is taller, never shorter than 16:10. */
+  .visual {
+    position: relative;
+    flex: 1 1 auto;
+    aspect-ratio: 16 / 10;
+    background: color-mix(in srgb, var(--accent) 10%, var(--surface));
+  }
+  .visual :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .soon {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: color-mix(in srgb, var(--surface) 55%, transparent);
+    backdrop-filter: blur(14px);
+    font-family: var(--font-mono);
+    font-size: 14px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .body {
+    padding: 20px 22px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .tags {
+    display: flex;
+    gap: 6px;
+  }
+  .tag {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    padding: 5px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+  }
+  .tag--live {
+    background: var(--accent);
+    border-color: transparent;
+    color: #ffffff;
+  }
+  h3 {
+    font-size: 24px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  h3 a:hover {
+    color: var(--accent);
+  }
+  .roles {
+    font-family: var(--font-mono);
+    font-size: 13px;
+  }
+</style>
