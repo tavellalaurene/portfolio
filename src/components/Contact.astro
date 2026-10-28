@@ -14,6 +14,7 @@ const hasLinks = Boolean(links.linkedin || links.github);
 
 <section id="contact" class="section last">
   <div class="container panel">
+    <div class="glow" aria-hidden="true"></div>
     <Heading label="04 · Contact" heading={contact.heading} class="big" breakLine />
     {contact.intro && <p class="muted">{t(contact.intro)}</p>}
     {
@@ -42,7 +43,29 @@ const hasLinks = Boolean(links.linkedin || links.github);
   .last {
     padding-bottom: 40px;
   }
+  .panel > :not(.glow) {
+    position: relative;
+  }
+  .glow {
+    position: absolute;
+    width: 480px;
+    height: 480px;
+    right: -120px;
+    top: -180px;
+    border-radius: 50%;
+    background: var(--accent-2);
+    filter: blur(80px);
+    opacity: 0.16;
+    pointer-events: none;
+  }
+  @media (prefers-reduced-transparency: reduce) {
+    .glow {
+      display: none;
+    }
+  }
   .panel {
+    position: relative;
+    overflow: hidden;
     border-radius: var(--radius);
     background: var(--surface);
     border: 1px solid var(--border);

@@ -81,6 +81,7 @@ p {
   border-radius: var(--radius);
   background: var(--card);
   border: 1px solid var(--border);
+  box-shadow: var(--card-shadow);
 }
 
 .button {
