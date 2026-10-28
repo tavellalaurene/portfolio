@@ -26,7 +26,16 @@ The checks run on every push and block publishing when they find:
 - job-seeking wording such as "looking for a job", "open to work", "CV" or "résumé" (English and French),
 - placeholders like `[something]` left in the content,
 - images that still contain metadata,
-- secrets (API keys, tokens) anywhere in the git history.
+- secrets (API keys, tokens) anywhere in the git history,
+- anything that could inject code: HTML or scripts in the content, non-https links, code that turns text into HTML, and any third-party script, style or font on the built site.
+
+## Security
+
+- The site is static: no server, no database, no forms, nothing a visitor can store.
+- A strict Content Security Policy on every page only lets the site's own scripts, styles, fonts and images load.
+- All text from the content files is escaped when rendered; links must be `https://`.
+- Dependencies are audited on every push, and Dependabot proposes updates weekly.
+- Recommended on GitHub: protect the `main` branch (Settings → Branches) so it only accepts changes whose checks pass.
 
 Public by design: name, title, employer, city, LinkedIn and GitHub links, project names and their public context.
 

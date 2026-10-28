@@ -8,12 +8,12 @@ interface Props {
 }
 
 const { impact } = Astro.props;
-const colors = ["var(--dark-accent)", "var(--dark-accent-2)", "#ffffff"];
 ---
 
 <section id="impact" class="section">
   <div class="container panel">
     <div class="glow" aria-hidden="true"></div>
+    <div class="glow glow--b" aria-hidden="true"></div>
     <div class="head">
       <Heading label="02 · Impact" heading={impact.heading} />
       <p class="intro">{t(impact.intro)}</p>
@@ -21,14 +21,16 @@ const colors = ["var(--dark-accent)", "var(--dark-accent-2)", "#ffffff"];
 
     <ul class="stats" role="list">
       {
-        impact.stats.map((stat, i) => (
-          <li class="stat" style={`--c: ${colors[i % colors.length]}`}>
+        impact.stats.map((stat) => (
+          <li class="stat">
             <span class="value">{stat.value}</span>
             <span class="label-text">{t(stat.label)}</span>
             {stat.base && <span class="base">{t(stat.base)}</span>}
-            <span class="bar" aria-hidden="true">
-              <span style={`width: ${stat.value}`} />
-            </span>
+            {/* SVG attributes, not inline styles: keeps the Content Security Policy strict. */}
+            <svg class="bar" aria-hidden="true" width="100%" height="6">
+              <rect class="track" width="100%" height="6" rx="3" />
+              <rect class="fill" width={stat.value} height="6" rx="3" />
+            </svg>
           </li>
         ))
       }
@@ -71,6 +73,21 @@ const colors = ["var(--dark-accent)", "var(--dark-accent-2)", "#ffffff"];
     filter: blur(80px);
     opacity: 0.35;
     pointer-events: none;
+  }
+  .glow--b {
+    width: 420px;
+    height: 420px;
+    left: auto;
+    top: auto;
+    right: -120px;
+    bottom: -200px;
+    background: var(--accent-2);
+    opacity: 0.22;
+  }
+  @media (prefers-reduced-transparency: reduce) {
+    .glow {
+      display: none;
+    }
   }
   .head,
   .stats,
@@ -121,16 +138,23 @@ const colors = ["var(--dark-accent)", "var(--dark-accent-2)", "#ffffff"];
     font-size: 13px;
     color: var(--dark-muted);
   }
-  .bar {
-    height: 6px;
-    border-radius: 3px;
-    background: rgba(255, 255, 255, 0.1);
-    overflow: hidden;
+  .stat:nth-child(3n + 1) {
+    --c: var(--dark-accent);
   }
-  .bar span {
+  .stat:nth-child(3n + 2) {
+    --c: var(--dark-accent-2);
+  }
+  .stat:nth-child(3n) {
+    --c: #ffffff;
+  }
+  .bar {
     display: block;
-    height: 100%;
-    background: var(--c);
+  }
+  .track {
+    fill: rgba(255, 255, 255, 0.1);
+  }
+  .fill {
+    fill: var(--c);
   }
   .foot {
     display: flex;

@@ -11,6 +11,9 @@ const text = z.union([
 
 const heading = z.object({ main: text, accent: text });
 
+// Only https links: blocks javascript:, data: and other injectable URL schemes.
+const httpsUrl = z.url({ protocol: /^https$/ });
+
 const site = defineCollection({
   loader: file("src/content/site.yaml"),
   schema: z.object({
@@ -21,8 +24,8 @@ const site = defineCollection({
     description: z.string(),
     links: z
       .object({
-        linkedin: z.url().optional(),
-        github: z.url().optional(),
+        linkedin: httpsUrl.optional(),
+        github: httpsUrl.optional(),
       })
       .default({}),
     hero: z.object({ headline: heading, intro: text }),
@@ -56,7 +59,7 @@ const projects = defineCollection({
       order: z.number().default(100),
       summary: text.optional(),
       roles: z.array(z.string()).default([]),
-      url: z.url().optional(),
+      url: httpsUrl.optional(),
       image: image().optional(),
       imageAlt: z.string().optional(),
       // Drafts are validated but never published.

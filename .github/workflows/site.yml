@@ -33,6 +33,9 @@ jobs:
 
       - run: npm ci
 
+      - name: Known vulnerabilities in dependencies
+        run: npm audit --audit-level=high
+
       - name: Content, privacy and wording checks, build, checks on the built site
         run: npm run verify
 

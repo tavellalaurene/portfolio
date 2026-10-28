@@ -53,6 +53,27 @@ function scanImageMetadata(file, buffer) {
   if (found) report(file, "image contains metadata (strip it first)", found.replace(/\0/g, ""));
 }
 
+// Injection: code must never turn strings into HTML or code, content must stay plain text.
+const UNSAFE_CODE = /\bset:html\b|\.innerHTML\b|\.outerHTML\b|insertAdjacentHTML|document\.write|\beval\s*\(|new\s+Function\s*\(/g;
+const UNSAFE_MARKUP = /<\s*(?:script|iframe|object|embed|form|base|meta|link|style)\b|\son[a-z]+\s*=|javascript:|vbscript:|data:text\/html/gi;
+
+function scanUnsafeCode(file, text) {
+  for (const hit of text.match(UNSAFE_CODE) ?? []) report(file, "unsafe HTML/code injection API", hit);
+}
+
+function scanUnsafeContent(file, text) {
+  for (const hit of text.match(UNSAFE_MARKUP) ?? []) report(file, "HTML or script in content", hit.trim());
+}
+
+// The built page: everything must come from the site itself, and the CSP must be present.
+function scanBuiltHtml(file, html) {
+  if (!/<meta http-equiv="content-security-policy"/i.test(html)) report(file, "missing Content-Security-Policy");
+  for (const m of html.matchAll(/<(?:script|link|img|iframe|source)\b[^>]*\b(?:src|href)="(https?:)?\/\/[^"]*"/gi)) {
+    if (!/<link[^>]*rel="(?:canonical|me)"/i.test(m[0])) report(file, "third-party resource", m[0].slice(0, 80));
+  }
+  for (const hit of html.match(/\son[a-z]+\s*=|javascript:|<iframe\b/gi) ?? []) report(file, "inline handler or unsafe URL", hit.trim());
+}
+
 function htmlToText(html) {
   return html
     .replace(/<script[\s\S]*?<\/script>/gi, " ")
@@ -92,6 +113,9 @@ if (target === "source") {
     if (config.contentDirs.some((d) => file.startsWith(`${d}/`))) {
       scanWording(file, text);
       scanPlaceholders(file, text);
+      scanUnsafeContent(file, text);
+    } else if (file.startsWith("src/")) {
+      scanUnsafeCode(file, text);
     }
   }
 } else if (target === "dist") {
@@ -99,10 +123,14 @@ if (target === "source") {
     const rel = relative(".", file);
     const ext = extname(file).toLowerCase();
     if (IMAGE_EXT.has(ext)) scanImageMetadata(rel, readFileSync(file));
+    if (ext === ".css" && /url\(\s*["']?data:/i.test(readFileSync(file, "utf8"))) {
+      report(rel, "inlined data: URI (blocked by the Content Security Policy)");
+    }
     if (ext !== ".html") continue;
     const html = readFileSync(file, "utf8");
     const text = htmlToText(html);
     scanPersonalData(rel, html);
+    scanBuiltHtml(rel, html);
     scanWording(rel, text);
     scanPlaceholders(rel, text);
   }
@@ -117,4 +145,4 @@ if (problems.length > 0) {
   console.error("\nNothing should be published until these are fixed. Rules live in config/checks.json.");
   process.exit(1);
 }
-console.log(`✓ ${target}: no personal data, banned wording, placeholders or image metadata found.`);
+console.log(`✓ ${target}: no personal data, banned wording, placeholders, image metadata or injection risks found.`);
