@@ -7,6 +7,7 @@ import Scope from "../components/Scope.astro";
 import Impact from "../components/Impact.astro";
 import Work from "../components/Work.astro";
 import Contact from "../components/Contact.astro";
+import Console from "../components/Console.astro";
 
 const entry = await getEntry("site", "site");
 if (!entry) throw new Error("src/content/site.yaml must contain an entry with id: site");
@@ -26,4 +27,5 @@ const projects = (await getCollection("projects", ({ data }) => !data.draft)).so
     <Work work={site.work} projects={projects} />
     <Contact site={site} />
   </main>
+  <Console site={site} projects={projects} />
 </Base>

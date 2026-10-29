@@ -1,0 +1,23 @@
+---
+// Renders a piece of copy for both modes; CSS shows the one matching the page mode.
+import type { Text } from "../lib/text";
+
+interface Props {
+  value: Text;
+}
+
+const { value } = Astro.props;
+const lead = typeof value === "string" ? value : value.lead;
+const build = typeof value === "string" ? value : (value.build ?? value.lead);
+---
+
+{
+  lead === build ? (
+    lead
+  ) : (
+    <>
+      <span class="t-lead">{lead}</span>
+      <span class="t-build">{build}</span>
+    </>
+  )
+}

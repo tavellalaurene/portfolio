@@ -2,7 +2,7 @@
 import type { CollectionEntry } from "astro:content";
 import { Image } from "astro:assets";
 import Heading from "./Heading.astro";
-import { t } from "../lib/text";
+import T from "./T.astro";
 
 interface Props {
   work: CollectionEntry<"site">["data"]["work"];
@@ -11,10 +11,10 @@ interface Props {
 
 const { work, projects } = Astro.props;
 const filters = [
-  { id: "all", label: "All" },
-  { id: "pro", label: "Pro" },
-  { id: "personal", label: "Personal" },
-  { id: "coming-soon", label: "Coming soon" },
+  { id: "all", label: { lead: "All", build: "--all" } },
+  { id: "pro", label: { lead: "Pro", build: "--pro" } },
+  { id: "personal", label: { lead: "Personal", build: "--perso" } },
+  { id: "coming-soon", label: { lead: "Coming soon", build: "--soon" } },
 ];
 ---
 
@@ -22,13 +22,13 @@ const filters = [
   <div class="container stack">
     <div class="head">
       <Heading label="03 · Work" heading={work.heading} />
-      <p class="muted intro">{t(work.intro)}</p>
+      <p class="muted intro"><T value={work.intro} /></p>
       <!-- Shown by the script below; without JavaScript every project simply stays visible. -->
       <div class="filters" role="group" aria-label="Filter projects" hidden data-filters>
         {
           filters.map((f, i) => (
             <button type="button" data-filter={f.id} aria-pressed={i === 0 ? "true" : "false"}>
-              {f.label}
+              <T value={f.label} />
             </button>
           ))
         }
@@ -38,8 +38,8 @@ const filters = [
 
     <ul class="grid" role="list">
       {
-        projects.map(({ data: p }, i) => (
-          <li class:list={["card", "project", { "project--wide": i === 0 }]} data-type={p.type} data-status={p.status}>
+        projects.map(({ id, data: p }, i) => (
+          <li class:list={["card", "project", { "project--wide": i === 0 }]} id={`project-${id}`} data-type={p.type} data-status={p.status}>
             <div class="visual">
               {p.image ? (
                 <Image src={p.image} alt={p.imageAlt ?? ""} widths={[480, 960, 1440]} sizes="(max-width: 700px) 100vw, 50vw" />
@@ -52,17 +52,28 @@ const filters = [
             </div>
             <div class="body">
               <div class="tags">
-                <span class="tag">{p.type}</span>
+                <span class="tag">
+                  <T value={p.type === "pro" ? "pro" : { lead: "personal", build: "perso" }} />
+                </span>
                 <span class:list={["tag", { "tag--live": p.status === "live" }]}>
-                  {p.status === "live" ? "Live" : "Coming soon"}
+                  <T value={p.status === "live" ? { lead: "Live", build: "● deployed" } : { lead: "Coming soon", build: "◌ coming_soon" }} />
                 </span>
               </div>
               <h3>{p.url ? <a href={p.url}>{p.name}</a> : p.name}</h3>
               <p class="muted">
                 {p.where}
-                {p.summary && <> · {t(p.summary)}</>}
+                {p.summary && (
+                  <>
+                    {" · "}
+                    <T value={p.summary} />
+                  </>
+                )}
               </p>
-              {p.roles.length > 0 && <p class="roles">My roles: {p.roles.join(" · ")}</p>}
+              {p.roles.length > 0 && (
+                <p class="roles">
+                  <T value={{ lead: "My roles:", build: "roles:" }} /> {p.roles.join(" · ")}
+                </p>
+              )}
             </div>
           </li>
         ))
@@ -126,13 +137,13 @@ const filters = [
     display: none;
   }
   .filters button {
+    font-family: var(--font-label);
     min-height: 40px;
     padding: 0 16px;
     border: 0;
     border-radius: 9px;
     background: transparent;
     color: var(--ink);
-    font: inherit;
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
@@ -143,6 +154,10 @@ const filters = [
   .filters button[aria-pressed="true"] {
     background: var(--ink);
     color: var(--page);
+  }
+  :global([data-mode="build"]) .filters button[aria-pressed="true"] {
+    background: color-mix(in srgb, var(--accent) 18%, transparent);
+    color: var(--accent);
   }
   .grid {
     margin: 0;
@@ -161,6 +176,10 @@ const filters = [
   }
   .project[hidden] {
     display: none;
+  }
+  .project:target {
+    outline: 2px solid var(--accent);
+    outline-offset: 4px;
   }
   .project--wide {
     flex: 2 1 620px;
@@ -239,9 +258,14 @@ const filters = [
   .tag--live {
     background: var(--accent);
     border-color: transparent;
-    color: #ffffff;
+    color: var(--on-accent);
+  }
+  :global([data-mode="build"]) .tag--live {
+    background: color-mix(in srgb, var(--accent) 16%, transparent);
+    color: var(--accent);
   }
   h3 {
+    font-family: var(--font-card);
     font-size: 24px;
     font-weight: 600;
     letter-spacing: -0.01em;

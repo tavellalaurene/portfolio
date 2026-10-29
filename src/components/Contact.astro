@@ -1,7 +1,7 @@
 ---
 import type { CollectionEntry } from "astro:content";
 import Heading from "./Heading.astro";
-import { t } from "../lib/text";
+import T from "./T.astro";
 
 interface Props {
   site: CollectionEntry<"site">["data"];
@@ -16,18 +16,24 @@ const hasLinks = Boolean(links.linkedin || links.github);
   <div class="container panel">
     <div class="glow" aria-hidden="true"></div>
     <Heading label="04 · Contact" heading={contact.heading} class="big" breakLine />
-    {contact.intro && <p class="muted">{t(contact.intro)}</p>}
+    {
+      contact.intro && (
+        <p class="muted">
+          <T value={contact.intro} />
+        </p>
+      )
+    }
     {
       hasLinks && (
         <div class="actions">
           {links.linkedin && (
             <a class="button button--primary" href={links.linkedin} rel="me">
-              Message me on LinkedIn
+              <T value={{ lead: "Message me on LinkedIn", build: "linkedin.open()" }} />
             </a>
           )}
           {links.github && (
             <a class="button" href={links.github} rel="me">
-              GitHub
+              <T value={{ lead: "GitHub", build: "github ↗" }} />
             </a>
           )}
         </div>
@@ -36,6 +42,7 @@ const hasLinks = Boolean(links.linkedin || links.github);
   </div>
   <footer class="container footer muted">
     <span>© {new Date().getFullYear()} {site.name} · {site.city}</span>
+    <span class="hint"><T value={{ lead: "psst: try Build mode", build: "console: bottom right ↘" }} /></span>
   </footer>
 </section>
 
@@ -75,7 +82,7 @@ const hasLinks = Boolean(links.linkedin || links.github);
     gap: 32px;
   }
   .panel :global(.big) {
-    font-size: clamp(56px, 8.4vw, 124px);
+    font-size: var(--big-size, clamp(56px, 8.4vw, 124px));
   }
   .actions {
     display: flex;
@@ -84,6 +91,17 @@ const hasLinks = Boolean(links.linkedin || links.github);
   }
   .footer {
     margin-top: 28px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 12px;
     font-size: 14px;
+  }
+  .hint {
+    font-family: var(--font-mono);
+    font-size: 13px;
+  }
+  .actions :global(.button) {
+    font-family: var(--font-label);
   }
 </style>

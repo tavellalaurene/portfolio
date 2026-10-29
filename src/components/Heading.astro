@@ -1,24 +1,23 @@
 ---
-import { t, type Mode, type Text } from "../lib/text";
+import T from "./T.astro";
+import type { Text } from "../lib/text";
 
 interface Props {
   label: string;
   heading: { main: Text; accent: Text };
-  mode?: Mode;
-  as?: "h1" | "h2";
   class?: string;
   /** Put the accent on its own line. */
   breakLine?: boolean;
 }
 
-const { label, heading, mode = "lead", as: Tag = "h2", class: className = "h2", breakLine = false } = Astro.props;
+const { label, heading, class: className = "h2", breakLine = false } = Astro.props;
 ---
 
 <div class="heading">
   <span class="label">{label}</span>
-  <Tag class:list={["display", className]}>
-    {t(heading.main, mode)}{breakLine && <br />}<span class="accent">{t(heading.accent, mode)}</span>
-  </Tag>
+  <h2 class:list={["display", className]}>
+    <T value={heading.main} />{breakLine && <br />}<span class="accent"><T value={heading.accent} /></span>
+  </h2>
 </div>
 
 <style>

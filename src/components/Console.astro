@@ -1,0 +1,372 @@
+---
+// Docked console, visible in Build mode only. It reads the same content as the page:
+// the data is passed as a JSON attribute (escaped by Astro) and rendered with textContent only.
+import type { CollectionEntry } from "astro:content";
+import { t } from "../lib/text";
+
+interface Props {
+  site: CollectionEntry<"site">["data"];
+  projects: CollectionEntry<"projects">[];
+}
+
+const { site, projects } = Astro.props;
+const data = {
+  whoami: `${site.name} · ${site.role} · ${site.org} · ${site.city}`,
+  facts: site.scope.kpis.map((k) => `${t(k.label, "build")}: ${k.value}`),
+  impact: site.impact.stats.map((s) => `${t(s.label, "build")} ${s.value}`),
+  phase: site.impact.phase,
+  projects: projects.map(({ id, data: p }) => ({
+    id,
+    name: p.name,
+    where: p.where,
+    type: p.type,
+    live: p.status === "live",
+  })),
+  links: Object.entries(site.links)
+    .filter(([, url]) => Boolean(url))
+    .map(([label, url]) => ({ label, url })),
+};
+---
+
+<div class="dock" data-console={JSON.stringify(data)} hidden>
+  <section class="panel" id="console-panel" aria-label="Console" hidden data-console-panel>
+    <div class="titlebar">
+      <span>~/portfolio</span>
+      <span>help · tab · ↑↓ · esc</span>
+    </div>
+    <div class="output" role="log" aria-live="polite" data-console-output></div>
+    <form class="prompt" data-console-form>
+      <label for="console-input">$</label>
+      <input
+        id="console-input"
+        type="text"
+        autocomplete="off"
+        autocapitalize="off"
+        spellcheck="false"
+        aria-label="Console command"
+        data-console-input
+      />
+    </form>
+  </section>
+  <button type="button" class="open" aria-expanded="false" aria-controls="console-panel" data-console-toggle>
+    &gt;_ console
+  </button>
+</div>
+
+<script>
+  import { getMode, onModeChange, setMode } from "../lib/mode";
+
+  type Project = { id: string; name: string; where: string; type: string; live: boolean };
+  type Data = {
+    whoami: string;
+    facts: string[];
+    impact: string[];
+    phase: string;
+    projects: Project[];
+    links: { label: string; url: string }[];
+  };
+  type Line = string | { text: string; href?: string; tone?: "dim" | "accent" };
+
+  const dock = document.querySelector<HTMLElement>("[data-console]");
+  if (dock) {
+    const data = JSON.parse(dock.dataset.console ?? "{}") as Data;
+    const panel = dock.querySelector<HTMLElement>("[data-console-panel]")!;
+    const output = dock.querySelector<HTMLElement>("[data-console-output]")!;
+    const form = dock.querySelector<HTMLFormElement>("[data-console-form]")!;
+    const input = dock.querySelector<HTMLInputElement>("[data-console-input]")!;
+    const toggle = dock.querySelector<HTMLButtonElement>("[data-console-toggle]")!;
+    const history: string[] = [];
+    let cursor = 0;
+
+    const slugOf = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+    const findProject = (q: string) => {
+      const s = slugOf(q);
+      return data.projects.find((p) => p.id === s || slugOf(p.name) === s || slugOf(p.name).startsWith(s));
+    };
+
+    // All output goes through textContent: nothing typed or stored is ever parsed as HTML.
+    const print = (lines: Line[]) => {
+      for (const line of lines) {
+        const row = document.createElement("div");
+        const item = typeof line === "string" ? { text: line } : line;
+        if (item.tone) row.className = item.tone;
+        if (item.href) {
+          const link = document.createElement("a");
+          link.href = item.href;
+          link.textContent = item.text;
+          row.append(link);
+        } else {
+          row.textContent = item.text;
+        }
+        output.append(row);
+      }
+      while (output.childElementCount > 120) output.firstElementChild?.remove();
+      output.scrollTop = output.scrollHeight;
+    };
+
+    const projectLine = (p: Project): Line => ({
+      text: `  ${p.name.padEnd(20)} ${p.live ? "● deployed" : "◌ coming_soon"}  ${p.where}`,
+      href: `#project-${p.id}`,
+    });
+
+    const commands: Record<string, { help: string; run: (args: string[]) => Line[] | void }> = {
+      help: {
+        help: "list commands",
+        run: () =>
+          Object.entries(commands).map(([name, c]) => ({ text: `  ${name.padEnd(10)} ${c.help}`, tone: "dim" as const })),
+      },
+      whoami: { help: "who I am", run: () => [data.whoami, ...data.facts.map((f) => `  ${f}`)] },
+      impact: { help: "the AI adoption program", run: () => [`ai.adoption · ${data.phase}`, ...data.impact.map((s) => `  ${s}`)] },
+      projects: {
+        help: "list projects (--live --soon --pro --perso)",
+        run: (args) => {
+          const flag = args[0];
+          const keep = (p: Project) =>
+            !flag ||
+            (flag === "--live" && p.live) ||
+            (flag === "--soon" && !p.live) ||
+            (flag === "--pro" && p.type === "pro") ||
+            (flag === "--perso" && p.type === "personal");
+          const list = data.projects.filter(keep);
+          return list.length ? list.map(projectLine) : [{ text: "no project matches", tone: "dim" }];
+        },
+      },
+      open: {
+        help: "open <project>: jump to a project",
+        run: (args) => {
+          const p = findProject(args.join(" "));
+          if (!p) return [{ text: `no project named "${args.join(" ")}". Try: projects`, tone: "dim" }];
+          location.hash = `project-${p.id}`;
+          return [{ text: `→ ${p.name}`, tone: "accent" }];
+        },
+      },
+      contact: {
+        help: "where to reach me",
+        run: () =>
+          data.links.length
+            ? data.links.map((l) => ({ text: `  ${l.label} ↗`, href: l.url }))
+            : [{ text: "links coming soon", tone: "dim" }],
+      },
+      ls: { help: "list sections", run: () => ["scope/  impact/  work/  contact/"] },
+      lead: {
+        help: "switch to Lead mode",
+        run: () => {
+          setMode("lead", "console");
+        },
+      },
+      clear: {
+        help: "clear the screen",
+        run: () => {
+          output.replaceChildren();
+        },
+      },
+    };
+    const names = Object.keys(commands);
+
+    // Closest command name, to suggest a fix for typos.
+    const distance = (a: string, b: string) => {
+      const d = Array.from({ length: a.length + 1 }, (_, i) => [i, ...Array(b.length).fill(0)]);
+      for (let j = 1; j <= b.length; j++) d[0][j] = j;
+      for (let i = 1; i <= a.length; i++)
+        for (let j = 1; j <= b.length; j++)
+          d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+      return d[a.length][b.length];
+    };
+
+    const run = (raw: string) => {
+      const line = raw.trim();
+      if (!line) return;
+      history.push(line);
+      cursor = history.length;
+      print([{ text: `$ ${line}`, tone: "accent" }]);
+      const [name, ...args] = line.split(/\s+/);
+      const command = commands[name.toLowerCase()];
+      if (command) {
+        const result = command.run(args);
+        if (result) print(result);
+        return;
+      }
+      const best = names.map((n) => [n, distance(name.toLowerCase(), n)] as const).sort((a, b) => a[1] - b[1])[0];
+      print([{ text: `command not found: ${name}${best[1] <= 2 ? `. Did you mean "${best[0]}"?` : ". Try: help"}`, tone: "dim" }]);
+    };
+
+    const complete = () => {
+      const [first, ...rest] = input.value.split(" ");
+      if (rest.length === 0) {
+        const matches = names.filter((n) => n.startsWith(first.toLowerCase()));
+        if (matches.length === 1) input.value = `${matches[0]} `;
+        else if (matches.length > 1) print([{ text: matches.join("  "), tone: "dim" }]);
+        return;
+      }
+      if (first === "open") {
+        const q = slugOf(rest.join(" "));
+        const matches = data.projects.filter((p) => slugOf(p.name).startsWith(q));
+        if (matches.length === 1) input.value = `open ${matches[0].name}`;
+        else if (matches.length > 1) print([{ text: matches.map((p) => p.name).join("  "), tone: "dim" }]);
+      }
+    };
+
+    const setOpen = (open: boolean, focus = true) => {
+      panel.hidden = !open;
+      toggle.setAttribute("aria-expanded", String(open));
+      toggle.textContent = open ? "× close" : ">_ console";
+      if (open && focus) input.focus();
+    };
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      run(input.value);
+      input.value = "";
+    });
+
+    input.addEventListener("keydown", (event) => {
+      if (event.key === "Tab" && input.value.trim()) {
+        event.preventDefault();
+        complete();
+      } else if (event.key === "ArrowUp" && history.length) {
+        event.preventDefault();
+        cursor = Math.max(0, cursor - 1);
+        input.value = history[cursor];
+      } else if (event.key === "ArrowDown" && history.length) {
+        event.preventDefault();
+        cursor = Math.min(history.length, cursor + 1);
+        input.value = history[cursor] ?? "";
+      } else if (event.key === "Escape") {
+        setOpen(false);
+        toggle.focus();
+      }
+    });
+
+    toggle.addEventListener("click", () => setOpen(panel.hidden));
+
+    print([{ text: "Welcome. Type help to explore.", tone: "dim" }]);
+
+    // Only available in Build mode. On large screens it opens by itself the first time
+    // Build is chosen in a visit; on phones it stays a button so it never covers the page.
+    let introduced = false;
+    const roomy = window.matchMedia("(min-width: 701px)");
+    const sync = (mode: string) => {
+      dock.hidden = mode !== "build";
+      if (mode === "build" && !introduced) {
+        introduced = true;
+        if (roomy.matches) setOpen(true, false);
+      }
+      if (mode !== "build") setOpen(false, false);
+    };
+    sync(getMode());
+    onModeChange(sync);
+  }
+</script>
+
+<style>
+  .dock {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 12px;
+    font-family: var(--font-mono);
+  }
+  .dock[hidden],
+  .panel[hidden] {
+    display: none;
+  }
+  .panel {
+    width: min(480px, calc(100vw - 48px));
+    border-radius: var(--radius);
+    background: rgba(12, 20, 16, 0.94);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(20px);
+    overflow: hidden;
+    color: #e6efe8;
+    font-size: 14px;
+  }
+  .titlebar {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    color: #a3b5a9;
+    font-size: 12px;
+  }
+  .output {
+    padding: 12px 14px 4px;
+    max-height: min(280px, 40vh);
+    overflow-y: auto;
+    white-space: pre-wrap;
+    line-height: 1.55;
+  }
+  .output :global(.dim) {
+    color: #a3b5a9;
+  }
+  .output :global(.accent) {
+    color: #e8a15a;
+  }
+  .output :global(a) {
+    color: inherit;
+    text-decoration: underline;
+    text-decoration-color: rgba(232, 161, 90, 0.5);
+    text-underline-offset: 3px;
+  }
+  .output :global(a:hover) {
+    color: #e8a15a;
+  }
+  .prompt {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 2px 14px 8px;
+  }
+  label {
+    color: #e8a15a;
+  }
+  input {
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 44px;
+    border: 0;
+    outline: none;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    caret-color: #e8a15a;
+  }
+  .prompt:focus-within {
+    box-shadow: inset 0 -2px 0 rgba(232, 161, 90, 0.6);
+  }
+  .open {
+    min-height: 52px;
+    padding: 0 20px;
+    border-radius: 12px;
+    border: 1px solid rgba(232, 161, 90, 0.55);
+    background: rgba(12, 20, 16, 0.94);
+    color: #e8a15a;
+    font: inherit;
+    font-size: 15px;
+    cursor: pointer;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+  }
+  .open:focus-visible {
+    outline: 3px solid #e8a15a;
+    outline-offset: 3px;
+  }
+  @media (max-width: 700px) {
+    .dock {
+      right: 16px;
+      bottom: 16px;
+    }
+    .panel {
+      width: calc(100vw - 32px);
+    }
+  }
+  @media (prefers-reduced-transparency: reduce) {
+    .panel {
+      backdrop-filter: none;
+    }
+  }
+</style>

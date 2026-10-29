@@ -31,6 +31,17 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta name="theme-color" content="#e4e5ea" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <!-- Apply the remembered mode (or ?mode=build) before first paint, so the page never flashes. -->
+    <script is:inline>
+      (function () {
+        try {
+          var asked = new URLSearchParams(location.search).get("mode");
+          var mode = asked === "lead" || asked === "build" ? asked : localStorage.getItem("lt-mode");
+          if (mode === "build") document.documentElement.dataset.mode = "build";
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <slot />

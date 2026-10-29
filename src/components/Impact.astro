@@ -1,7 +1,7 @@
 ---
 import type { CollectionEntry } from "astro:content";
 import Heading from "./Heading.astro";
-import { t } from "../lib/text";
+import T from "./T.astro";
 
 interface Props {
   impact: CollectionEntry<"site">["data"]["impact"];
@@ -16,7 +16,7 @@ const { impact } = Astro.props;
     <div class="glow glow--b" aria-hidden="true"></div>
     <div class="head">
       <Heading label="02 · Impact" heading={impact.heading} />
-      <p class="intro">{t(impact.intro)}</p>
+      <p class="intro"><T value={impact.intro} /></p>
     </div>
 
     <ul class="stats" role="list">
@@ -24,8 +24,14 @@ const { impact } = Astro.props;
         impact.stats.map((stat) => (
           <li class="stat">
             <span class="value">{stat.value}</span>
-            <span class="label-text">{t(stat.label)}</span>
-            {stat.base && <span class="base">{t(stat.base)}</span>}
+            <span class="label-text">
+              <T value={stat.label} />
+            </span>
+            {stat.base && (
+              <span class="base">
+                <T value={stat.base} />
+              </span>
+            )}
             {/* SVG attributes, not inline styles: keeps the Content Security Policy strict. */}
             <svg class="bar" aria-hidden="true" width="100%" height="6">
               <rect class="track" width="100%" height="6" rx="3" />
@@ -38,7 +44,13 @@ const { impact } = Astro.props;
 
     <div class="foot">
       <ul class="methods" role="list">
-        {impact.methods.map((method) => <li>{t(method)}</li>)}
+        {
+          impact.methods.map((method) => (
+            <li>
+              <T value={method} />
+            </li>
+          ))
+        }
       </ul>
       <span class="phase">{impact.phase}</span>
     </div>
@@ -125,11 +137,15 @@ const { impact } = Astro.props;
   .value {
     font-family: var(--font-display);
     font-weight: 600;
-    font-size: clamp(64px, 7vw, 100px);
+    font-size: var(--stat-size, clamp(64px, 7vw, 100px));
     line-height: 0.95;
     letter-spacing: var(--display-track);
     font-variant-numeric: lining-nums;
     color: var(--c);
+  }
+  .label-text,
+  .methods li {
+    font-family: var(--font-label);
   }
   .label-text {
     font-size: 15px;

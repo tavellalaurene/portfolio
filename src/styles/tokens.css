@@ -1,18 +1,16 @@
-/* Design tokens. Lead is the default; Build overrides colors and the display font only.
-   Layout, spacing, radii and body/label fonts are shared so both modes keep one skeleton. */
-:root {
+/* Design tokens. Lead is the default; Build overrides colors and the display fonts only.
+   Layout, spacing, radii and body text are shared so both modes keep one skeleton.
+   .mode-lead / .mode-build pin a block to one mode whatever the page mode (used by the hero). */
+:root,
+.mode-lead {
   --font-display: "Cormorant Garamond", Georgia, serif;
   --font-body: "Inter Tight", system-ui, sans-serif;
   --font-mono: "Geist Mono", ui-monospace, monospace;
+  --font-card: var(--font-body);
+  --font-label: var(--font-body);
 
   --display-track: -0.02em;
   --accent-style: italic;
-
-  --radius: 16px;
-  --radius-sm: 10px;
-  --max-width: 1240px;
-  --gutter: 24px;
-  --section-gap: 130px;
 
   --page: #e4e5ea;
   --surface: #ececf1;
@@ -24,6 +22,7 @@
   --muted: #4b4c57;
   --accent: #5b21b6;
   --accent-2: #a4561c;
+  --on-accent: #ffffff;
   --card-shadow: 0 16px 40px rgba(20, 20, 40, 0.06);
 
   --dark: #141418;
@@ -33,8 +32,19 @@
   --dark-accent-2: #e3a574;
 }
 
-[data-mode="build"] {
+:root {
+  --radius: 16px;
+  --radius-sm: 10px;
+  --max-width: 1240px;
+  --gutter: 24px;
+  --section-gap: 130px;
+}
+
+[data-mode="build"],
+.mode-build {
   --font-display: "Geist Mono", ui-monospace, monospace;
+  --font-card: "Geist Mono", ui-monospace, monospace;
+  --font-label: "Geist Mono", ui-monospace, monospace;
   --display-track: -0.04em;
   --accent-style: normal;
 
@@ -48,9 +58,19 @@
   --muted: #a3b5a9;
   --accent: #e8a15a;
   --accent-2: #9fd3b4;
+  --on-accent: #0c1410;
   --card-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
 
   --dark: #0c1410;
+  --dark-ink: #eef0ec;
+  --dark-muted: #c5cac4;
   --dark-accent: #e8a15a;
   --dark-accent-2: #9fd3b4;
+}
+
+/* Smaller display sizes in Build: the monospace face is much wider. */
+[data-mode="build"] {
+  --h2-size: clamp(32px, 4.2vw, 58px);
+  --big-size: clamp(36px, 5.6vw, 80px);
+  --stat-size: clamp(52px, 5.6vw, 80px);
 }

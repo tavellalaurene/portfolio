@@ -1,25 +1,58 @@
 ---
+import T from "./T.astro";
+
 interface Props {
   name: string;
 }
 
 const { name } = Astro.props;
+// "Laurène Tavella" -> "~/laurene"
+const handle = `~/${name.split(" ")[0].normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase()}`;
 const links = [
-  { href: "#scope", label: "Scope" },
-  { href: "#impact", label: "Impact" },
-  { href: "#work", label: "Work" },
-  { href: "#contact", label: "Contact" },
+  { href: "#scope", label: { lead: "Scope", build: "./scope" } },
+  { href: "#impact", label: { lead: "Impact", build: "./impact" } },
+  { href: "#work", label: { lead: "Work", build: "./work" } },
+  { href: "#contact", label: { lead: "Contact", build: "./contact" } },
 ];
 ---
 
 <header class="bar">
   <nav class="container nav" aria-label="Main">
-    <a class="logo" href="#top">{name}</a>
-    <ul>
-      {links.map((link) => <li><a href={link.href}>{link.label}</a></li>)}
-    </ul>
+    <a class="logo" href="#top"><T value={{ lead: name, build: handle }} /></a>
+    <div class="right">
+      <ul>
+        {
+          links.map((link) => (
+            <li>
+              <a href={link.href}>
+                <T value={link.label} />
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+      <!-- Shown by the script below; without JavaScript the page stays in Lead mode. -->
+      <div class="toggle" role="group" aria-label="Site mode" hidden data-mode-toggle>
+        <button type="button" data-set-mode="lead" aria-pressed="true">Lead</button>
+        <button type="button" data-set-mode="build" aria-pressed="false">Build</button>
+      </div>
+    </div>
   </nav>
 </header>
+
+<script>
+  import { getMode, onModeChange, setMode, type Mode } from "../lib/mode";
+
+  const toggle = document.querySelector<HTMLElement>("[data-mode-toggle]");
+  if (toggle) {
+    const buttons = [...toggle.querySelectorAll<HTMLButtonElement>("[data-set-mode]")];
+    const sync = (mode: Mode) => buttons.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.setMode === mode)));
+    toggle.hidden = false;
+    sync(getMode());
+    buttons.forEach((b) => b.addEventListener("click", () => setMode(b.dataset.setMode as Mode, "toggle")));
+    onModeChange(sync);
+  }
+</script>
 
 <style>
   .bar {
@@ -30,7 +63,7 @@ const links = [
   }
   .nav {
     min-height: 64px;
-    padding: 8px 22px;
+    padding: 8px 8px 8px 22px;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -40,10 +73,20 @@ const links = [
     background: color-mix(in srgb, var(--surface) 70%, transparent);
     border: 1px solid var(--border);
     backdrop-filter: blur(20px) saturate(1.5);
+    transition:
+      background-color 0.6s ease,
+      border-color 0.6s ease;
   }
   .logo {
+    font-family: var(--font-label);
     font-weight: 600;
     font-size: 17px;
+  }
+  .right {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 22px;
   }
   ul {
     display: flex;
@@ -55,6 +98,40 @@ const links = [
     font-size: 15px;
   }
   a:hover {
+    color: var(--accent);
+  }
+  .toggle {
+    display: flex;
+    padding: 4px;
+    border-radius: 12px;
+    background: var(--tile);
+    border: 1px solid var(--border);
+  }
+  .toggle[hidden] {
+    display: none;
+  }
+  .toggle button {
+    min-height: 40px;
+    min-width: 44px;
+    padding: 0 16px;
+    border: 0;
+    border-radius: 9px;
+    background: transparent;
+    color: var(--muted);
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .toggle button[data-set-mode="build"] {
+    font-family: var(--font-mono);
+  }
+  .toggle button[aria-pressed="true"] {
+    background: var(--ink);
+    color: var(--page);
+  }
+  :global([data-mode="build"]) .toggle button[aria-pressed="true"] {
+    background: color-mix(in srgb, var(--accent) 18%, transparent);
     color: var(--accent);
   }
   @media (prefers-reduced-transparency: reduce) {

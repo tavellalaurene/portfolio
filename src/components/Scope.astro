@@ -1,7 +1,7 @@
 ---
 import type { CollectionEntry } from "astro:content";
 import Heading from "./Heading.astro";
-import { t } from "../lib/text";
+import T from "./T.astro";
 
 interface Props {
   scope: CollectionEntry<"site">["data"]["scope"];
@@ -14,7 +14,7 @@ const { scope } = Astro.props;
   <div class="container stack">
     <div class="head">
       <Heading label="01 · Scope" heading={scope.heading} />
-      <p class="muted side">{t(scope.intro)}</p>
+      <p class="muted side"><T value={scope.intro} /></p>
     </div>
 
     <ul class="kpis" role="list">
@@ -22,7 +22,7 @@ const { scope } = Astro.props;
         scope.kpis.map((kpi) => (
           <li class="kpi">
             <span class:list={["value", { "value--text": !/^[\d.,%+]+$/.test(kpi.value) }]}>{kpi.value}</span>
-            <span class="muted">{t(kpi.label)}</span>
+            <span class="muted kpi-label"><T value={kpi.label} /></span>
           </li>
         ))
       }
@@ -33,9 +33,13 @@ const { scope } = Astro.props;
         scope.cards.map((card, i) => (
           <li class="card scope-card">
             <span class="num">{String(i + 1).padStart(2, "0")}</span>
-            <h3>{t(card.title)}</h3>
-            <p class="muted body">{t(card.body)}</p>
-            {card.outcome && <p class="outcome">→ {t(card.outcome)}</p>}
+            <h3><T value={card.title} /></h3>
+            <p class="muted body"><T value={card.body} /></p>
+            {card.outcome && (
+              <p class="outcome">
+                → <T value={card.outcome} />
+              </p>
+            )}
           </li>
         ))
       }
@@ -111,7 +115,11 @@ const { scope } = Astro.props;
     font-size: 13px;
     color: var(--accent);
   }
+  .kpi-label {
+    font-family: var(--font-label);
+  }
   h3 {
+    font-family: var(--font-card);
     font-size: 22px;
     font-weight: 600;
     letter-spacing: -0.01em;
