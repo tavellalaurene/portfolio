@@ -1,34 +1,45 @@
 {
-  "$comment": "Rules enforced by scripts/checks.mjs before anything is published. Edit the lists freely.",
-  "bannedPhrases": [
-    "looking for a job",
-    "looking for work",
-    "looking for a new role",
-    "looking for new opportunities",
-    "open to work",
-    "open to new opportunities",
-    "job search",
-    "job hunting",
-    "seeking a position",
-    "seeking a role",
-    "available for hire",
-    "hire me",
-    "résumé",
-    "resume",
-    "curriculum vitae",
-    "recherche d'emploi",
-    "recherche d’emploi",
-    "en recherche active",
-    "à l'écoute du marché",
-    "à l’écoute du marché",
-    "à la recherche d'un poste",
-    "à la recherche d’un poste",
-    "disponible immédiatement",
-    "ouverte aux opportunités",
-    "ouvert aux opportunités"
+  "$comment": "Rules enforced by scripts/checks.mjs before anything is published. Blocked wording is stored as fingerprints; add a phrase with: npm run wording -- \"some phrase\"",
+  "blockedWording": {
+    "anyCase": [
+      "089d9247741fb79413c780e544311f113b77725259bbd94e3817d1ef1f68c8e3",
+      "17f7624ee50f3eef434e19ab942cbd92c80d6ede3668f0b4ea08697e1fb494bb",
+      "277df7b3c7ee0475bb8b0cc7073989a0e3dca66c8d2048e0d9838611264d51e5",
+      "27ce19a3973be61262ea91799a234bd28ed738eaa73fec71c0af6b2e1d928249",
+      "34eebdb29e1e7e0dba594818ef1abee3f1e6cd84bd0c5422904283e1d26c7bf3",
+      "3fd91d05e5c6397f744da6683166440198142c862d9be78ce906021951ffcdf0",
+      "45c849714eed79ed50fe3922aa4fe97b6debc59c784ffa1416b198d5d22275ea",
+      "4cd37c7e0fef6b892b82a371c134ed0ba8355dd807683f1ca5bf1d60dfe3e8de",
+      "6db14c0e264b29a2211ac37c0a3f8e58e20a49b014640598b5f39c49965b0fdc",
+      "6e0fd0740a06b5dae991f094f1daadb795d4ccf5e487b4aeedc6e291d549ca3e",
+      "707de6c3deb42c939d46d2d65c3e418b1488868d076f8dfa590729ffaf7aa84b",
+      "7f7c2f2d766b394023133316d88535e59adfd4221886113ec4d891352fe13694",
+      "8e3bb138424aa8e2cba5ffffd160cb0278466f1864fdc31a906241749992ec3f",
+      "93c596102a73df8c92166573b0bea09d88d7b19f7ba615aa962f3579c0748caf",
+      "9bd5cffd442711f8f7bdd02837f08dae47165d1b9de824fb99ad03e31f630071",
+      "a298f75c368bcdb1cb6916b150f96cd7826b6fa70a355c43658171a7cf503715",
+      "a83a31320d921b888a48fa5edd0b4b5a29984de6e96bf7b8ac7d29ba06caf616",
+      "aea55a040c209ae000fe14bb3a496e15a4210e9e15fa65def8278765a7cace4e",
+      "b5126b226c2f4458096e440cfeb40e6d3e81fe0a2e06b8a6fc78d065c7d8743d",
+      "e3c30283a1654384f4822084b8c695219df5479973d0c2fa97040674f5fa33ba",
+      "e9f7b5b696661e938834cbc285688cfa43371150ee5261b47b7d60f6ed73a6f5",
+      "eb4549afa8f465fbda3a62032bc8afd3123e4ce4581462076627fb1bad92a0d4"
+    ],
+    "exactCase": [
+      "0f5fed1791e0ff940512ad291bde94d79f4c52cf05a4f3e705588f3207373731"
+    ]
+  },
+  "allowedEmailPatterns": [
+    "@users\\.noreply\\.github\\.com$",
+    "@example\\.com$",
+    "^noreply@anthropic\\.com$"
   ],
-  "bannedCaseSensitiveWords": ["CV"],
-  "allowedEmailPatterns": ["@users\\.noreply\\.github\\.com$", "@example\\.com$", "^noreply@anthropic\\.com$"],
-  "contentDirs": ["src/content"],
-  "skipFiles": ["package-lock.json", "config/checks.json", "scripts/checks.mjs"]
+  "contentDirs": [
+    "src/content"
+  ],
+  "skipFiles": [
+    "package-lock.json",
+    "config/checks.json",
+    "scripts/checks.mjs"
+  ]
 }

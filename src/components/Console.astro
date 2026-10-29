@@ -11,10 +11,11 @@ interface Props {
 
 const { site, projects } = Astro.props;
 const data = {
-  whoami: `${site.name} · ${site.role} · ${site.org} · ${site.city}`,
+  whoami: `${site.name} · ${site.role} at ${site.org}, ${site.city}`,
   facts: site.scope.kpis.map((k) => `${t(k.label, "build")}: ${k.value}`),
   impact: site.impact.stats.map((s) => `${t(s.label, "build")} ${s.value}`),
   phase: site.impact.phase,
+  next: site.impact.next ? t(site.impact.next, "build") : "",
   projects: projects.map(({ id, data: p }) => ({
     id,
     name: p.name,
@@ -62,6 +63,7 @@ const data = {
     facts: string[];
     impact: string[];
     phase: string;
+    next: string;
     projects: Project[];
     links: { label: string; url: string }[];
   };
@@ -109,14 +111,17 @@ const data = {
       href: `#project-${p.id}`,
     });
 
-    const commands: Record<string, { help: string; run: (args: string[]) => Line[] | void }> = {
+    // `hidden` commands are easter eggs: they work but stay out of help and Tab completion.
+    const commands: Record<string, { help: string; hidden?: boolean; run: (args: string[]) => Line[] | void }> = {
       help: {
         help: "list commands",
         run: () =>
-          Object.entries(commands).map(([name, c]) => ({ text: `  ${name.padEnd(10)} ${c.help}`, tone: "dim" as const })),
+          Object.entries(commands)
+            .filter(([, c]) => !c.hidden)
+            .map(([name, c]) => ({ text: `  ${name.padEnd(10)} ${c.help}`, tone: "dim" as const })),
       },
       whoami: { help: "who I am", run: () => [data.whoami, ...data.facts.map((f) => `  ${f}`)] },
-      impact: { help: "the AI adoption program", run: () => [`ai.adoption · ${data.phase}`, ...data.impact.map((s) => `  ${s}`)] },
+      impact: { help: "the AI adoption program", run: () => [`ai.adoption · ${data.phase}`, ...data.impact.map((s) => `  ${s}`), ...(data.next ? [data.next] : [])] },
       projects: {
         help: "list projects (--live --soon --pro --perso)",
         run: (args) => {
@@ -148,6 +153,17 @@ const data = {
             : [{ text: "links coming soon", tone: "dim" }],
       },
       ls: { help: "list sections", run: () => ["scope/  impact/  work/  contact/"] },
+      sudo: {
+        help: "easter egg",
+        hidden: true,
+        run: () => {
+          const linkedin = data.links.find((l) => l.label === "linkedin");
+          return [
+            { text: "Nice try, let’s talk:", tone: "accent" },
+            ...(linkedin ? [{ text: "  linkedin ↗", href: linkedin.url }] : []),
+          ];
+        },
+      },
       lead: {
         help: "switch to Lead mode",
         run: () => {
@@ -161,7 +177,7 @@ const data = {
         },
       },
     };
-    const names = Object.keys(commands);
+    const names = Object.keys(commands).filter((name) => !commands[name].hidden);
 
     // Closest command name, to suggest a fix for typos.
     const distance = (a: string, b: string) => {

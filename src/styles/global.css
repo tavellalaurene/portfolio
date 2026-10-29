@@ -23,6 +23,11 @@ body {
     color 0.6s ease;
 }
 
+/* Controls that need JavaScript are only shown when it runs (class set before first paint). */
+html:not(.js) [data-js-only] {
+  display: none !important;
+}
+
 /* Every text exists in both modes; only the current one is shown (and read by screen readers). */
 html:not([data-mode="build"]) .t-build,
 [data-mode="build"] .t-lead {

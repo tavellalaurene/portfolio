@@ -1,9 +1,11 @@
 // Publishing guard. Fails (exit 1) when the repo or the built site would leak
-// personal data, contain job-seeking wording, ship placeholders, or ship image metadata.
+// personal data, contain blocked wording, ship placeholders, or ship image metadata.
 //
-//   node scripts/checks.mjs source   -> files tracked by git (and new, non-ignored files)
-//   node scripts/checks.mjs dist     -> the built site in dist/
+//   node scripts/checks.mjs source               -> files tracked by git (and new, non-ignored files)
+//   node scripts/checks.mjs dist                 -> the built site in dist/
+//   node scripts/checks.mjs fingerprint "phrase" -> fingerprint to add to config/checks.json
 import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { extname, join, relative } from "node:path";
 
@@ -22,9 +24,26 @@ const IMAGE_EXT = new Set([".jpg", ".jpeg", ".png", ".webp", ".avif", ".tif", ".
 const TEXT_EXT = new Set([".md", ".mdx", ".yaml", ".yml", ".json", ".astro", ".ts", ".js", ".mjs", ".css", ".html", ".txt", ".svg", ""]);
 
 const allowedEmail = (email) => config.allowedEmailPatterns.some((p) => new RegExp(p, "i").test(email));
-const escape = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-const bannedPhrases = config.bannedPhrases.map((p) => ({ p, re: new RegExp(`(?<![\\p{L}])${escape(p)}(?![\\p{L}])`, "iu") }));
-const bannedWords = config.bannedCaseSensitiveWords.map((w) => ({ p: w, re: new RegExp(`\\b${escape(w)}\\b`, "u") }));
+
+// Blocked wording is stored as SHA-256 fingerprints of normalized phrases, so the list
+// itself is not readable in the repo. Text is split into words and every run of 1 to
+// MAX_WORDS consecutive words is fingerprinted and looked up.
+const MAX_WORDS = 6;
+const words = (s) => s.normalize("NFC").split(/[^\p{L}\p{N}]+/u).filter(Boolean);
+const fingerprint = (phrase) => createHash("sha256").update(phrase).digest("hex");
+const blockedAnyCase = new Set(config.blockedWording.anyCase);
+const blockedExactCase = new Set(config.blockedWording.exactCase);
+
+if (target === "fingerprint") {
+  const phrase = process.argv.slice(3).join(" ");
+  if (!phrase) {
+    console.error('Usage: npm run wording -- "some phrase"');
+    process.exit(2);
+  }
+  console.log(`anyCase:   ${fingerprint(words(phrase.toLowerCase()).join(" "))}`);
+  console.log(`exactCase: ${fingerprint(words(phrase).join(" "))}`);
+  process.exit(0);
+}
 
 function report(file, rule, detail) {
   problems.push(`${file}: ${rule}${detail ? ` → "${detail}"` : ""}`);
@@ -37,7 +56,15 @@ function scanPersonalData(file, text) {
 }
 
 function scanWording(file, text) {
-  for (const { p, re } of [...bannedPhrases, ...bannedWords]) if (re.test(text)) report(file, "banned wording", p);
+  const list = words(text);
+  for (let i = 0; i < list.length; i++) {
+    for (let n = 1; n <= MAX_WORDS && i + n <= list.length; n++) {
+      const run = list.slice(i, i + n).join(" ");
+      if (blockedAnyCase.has(fingerprint(run.toLowerCase())) || blockedExactCase.has(fingerprint(run))) {
+        report(file, "blocked wording", run);
+      }
+    }
+  }
 }
 
 function scanPlaceholders(file, text) {
@@ -145,4 +172,4 @@ if (problems.length > 0) {
   console.error("\nNothing should be published until these are fixed. Rules live in config/checks.json.");
   process.exit(1);
 }
-console.log(`✓ ${target}: no personal data, banned wording, placeholders, image metadata or injection risks found.`);
+console.log(`✓ ${target}: no personal data, blocked wording, placeholders, image metadata or injection risks found.`);

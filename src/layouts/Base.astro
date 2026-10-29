@@ -16,6 +16,9 @@ interface Props {
 
 const { title, description } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site);
+const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
+const asset = (file: string) => `${base}${file}`;
+const shareImage = new URL(asset("og.png"), Astro.site);
 ---
 
 <!doctype html>
@@ -30,11 +33,19 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={shareImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="I lead teams. I ship code. Laurène Tavella, Development Team Lead." />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href={asset("favicon.svg")} type="image/svg+xml" />
     <meta name="theme-color" content="#e4e5ea" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
-    <!-- Apply the remembered mode (or ?mode=build) before first paint, so the page never flashes. -->
+    <!-- Before first paint: mark JavaScript as available (shows the interactive controls without
+         any layout shift) and apply the remembered mode (or ?mode=build) so the page never flashes. -->
     <script is:inline>
       (function () {
+        document.documentElement.classList.add("js");
         try {
           var asked = new URLSearchParams(location.search).get("mode");
           var mode = asked === "lead" || asked === "build" ? asked : localStorage.getItem("lt-mode");

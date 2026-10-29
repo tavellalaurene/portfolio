@@ -6,8 +6,10 @@ interface Props {
 }
 
 const { name } = Astro.props;
-// "Laurène Tavella" -> "~/laurene"
-const handle = `~/${name.split(" ")[0].normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase()}`;
+const [first, ...last] = name.split(" ");
+// "Laurène Tavella" -> "Laurène TAVELLA" (French convention) and "~/laurene"
+const display = [first, ...last.map((part) => part.toUpperCase())].join(" ");
+const handle = `~/${first.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase()}`;
 const links = [
   { href: "#scope", label: { lead: "Scope", build: "./scope" } },
   { href: "#impact", label: { lead: "Impact", build: "./impact" } },
@@ -18,7 +20,7 @@ const links = [
 
 <header class="bar">
   <nav class="container nav" aria-label="Main">
-    <a class="logo" href="#top"><T value={{ lead: name, build: handle }} /></a>
+    <a class="logo" href="#top"><T value={{ lead: display, build: handle }} /></a>
     <div class="right">
       <ul>
         {
@@ -31,8 +33,8 @@ const links = [
           ))
         }
       </ul>
-      <!-- Shown by the script below; without JavaScript the page stays in Lead mode. -->
-      <div class="toggle" role="group" aria-label="Site mode" hidden data-mode-toggle>
+      <!-- Only shown when JavaScript runs; without it the page stays in Lead mode. -->
+      <div class="toggle" role="group" aria-label="Site mode" data-js-only data-mode-toggle>
         <button type="button" data-set-mode="lead" aria-pressed="true">Lead</button>
         <button type="button" data-set-mode="build" aria-pressed="false">Build</button>
       </div>
@@ -47,7 +49,6 @@ const links = [
   if (toggle) {
     const buttons = [...toggle.querySelectorAll<HTMLButtonElement>("[data-set-mode]")];
     const sync = (mode: Mode) => buttons.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.setMode === mode)));
-    toggle.hidden = false;
     sync(getMode());
     buttons.forEach((b) => b.addEventListener("click", () => setMode(b.dataset.setMode as Mode, "toggle")));
     onModeChange(sync);
@@ -106,9 +107,6 @@ const links = [
     border-radius: 12px;
     background: var(--tile);
     border: 1px solid var(--border);
-  }
-  .toggle[hidden] {
-    display: none;
   }
   .toggle button {
     min-height: 40px;

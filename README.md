@@ -16,6 +16,9 @@ You never need to touch the code to change the content.
 - **Hide a project while you work on it:** add `draft: true`.
 - **Missing information:** leave the field out instead of writing a placeholder such as `[city]`. Empty fields simply don't show, and placeholders block publishing.
 - **Text per mode:** any text can be one string, or a `lead` / `build` pair (`build` falls back to `lead`).
+- **Links:** the LinkedIn and GitHub buttons only appear for the links filled in under `links:` in `site.yaml`.
+- **Console:** in Build mode it reads the same content files, so new projects and facts appear there automatically.
+- **Share image:** `public/og.png` (1200×630) is what LinkedIn, Slack and others show when the link is shared.
 - **Images:** 16:10, put them next to the project file (e.g. `src/content/projects/images/`), and **strip their metadata first** (GPS, camera, author). For example `exiftool -all= image.jpg`. The checks refuse images that still carry metadata.
 
 ## What is never published
@@ -23,7 +26,7 @@ You never need to touch the code to change the content.
 The checks run on every push and block publishing when they find:
 
 - an email address, a phone number or a street address (on the site and anywhere in the repo),
-- job-seeking wording such as "looking for a job", "open to work", "CV" or "résumé" (English and French),
+- any phrase on the blocked-wording list, stored as fingerprints in `config/checks.json` so the list itself stays unreadable (add one with `npm run wording -- "some phrase"` and paste the printed fingerprint),
 - placeholders like `[something]` left in the content,
 - images that still contain metadata,
 - secrets (API keys, tokens) anywhere in the git history,
@@ -63,10 +66,20 @@ npm run dev
 
 Open the address it prints (it ends with `/portfolio/`).
 
-Before pushing, run everything the server runs:
+Before pushing, run everything the server runs: the checks and the build, then the browser tests (mode switch, divider, filters, console, accessibility audit and security policy, on desktop and phone):
 
 ```bash
 npm run verify
+```
+
+```bash
+npm test
+```
+
+The first time, `npm test` may ask for its browser:
+
+```bash
+npx playwright install chromium
 ```
 
 ## Publishing

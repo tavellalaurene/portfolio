@@ -15,7 +15,7 @@ const filters = [
   { id: "pro", label: { lead: "Pro", build: "--pro" } },
   { id: "personal", label: { lead: "Personal", build: "--perso" } },
   { id: "coming-soon", label: { lead: "Coming soon", build: "--soon" } },
-];
+].filter((f) => f.id !== "coming-soon" || projects.some(({ data }) => data.status === "coming-soon"));
 ---
 
 <section id="work" class="section">
@@ -23,8 +23,8 @@ const filters = [
     <div class="head">
       <Heading label="03 · Work" heading={work.heading} />
       <p class="muted intro"><T value={work.intro} /></p>
-      <!-- Shown by the script below; without JavaScript every project simply stays visible. -->
-      <div class="filters" role="group" aria-label="Filter projects" hidden data-filters>
+      <!-- Only shown when JavaScript runs; without it every project simply stays visible. -->
+      <div class="filters" role="group" aria-label="Filter projects" data-js-only data-filters>
         {
           filters.map((f, i) => (
             <button type="button" data-filter={f.id} aria-pressed={i === 0 ? "true" : "false"}>
@@ -78,6 +78,18 @@ const filters = [
           </li>
         ))
       }
+      {
+        work.more && (
+          <li class="more">
+            <span class="more-mark" aria-hidden="true">
+              <T value={{ lead: "+", build: "$ _" }} />
+            </span>
+            <p>
+              <T value={work.more} />
+            </p>
+          </li>
+        )
+      }
     </ul>
   </div>
 </section>
@@ -88,7 +100,6 @@ const filters = [
   const cards = [...document.querySelectorAll<HTMLElement>("#work .project")];
 
   if (group && status) {
-    group.hidden = false;
     group.addEventListener("click", (event) => {
       const button = (event.target as HTMLElement).closest<HTMLButtonElement>("[data-filter]");
       if (!button) return;
@@ -133,9 +144,6 @@ const filters = [
     background: var(--tile);
     border: 1px solid var(--border);
   }
-  .filters[hidden] {
-    display: none;
-  }
   .filters button {
     font-family: var(--font-label);
     min-height: 40px;
@@ -173,6 +181,27 @@ const filters = [
     overflow: hidden;
     display: flex;
     flex-direction: column;
+  }
+  /* Closing tile: a dashed outline, so it reads as "space for what comes next". */
+  .more {
+    flex: 1 1 380px;
+    min-width: 0;
+    min-height: 180px;
+    padding: 28px;
+    border-radius: var(--radius);
+    border: 1.5px dashed var(--line);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 12px;
+    color: var(--muted);
+    font-family: var(--font-label);
+  }
+  .more-mark {
+    font-family: var(--font-display);
+    font-size: 40px;
+    line-height: 1;
+    color: var(--accent);
   }
   .project[hidden] {
     display: none;
