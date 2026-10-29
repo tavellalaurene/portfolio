@@ -52,7 +52,17 @@ const { impact } = Astro.props;
           ))
         }
       </ul>
-      <span class="phase">{impact.phase}</span>
+      <div class="phases">
+        <span class="phase">{impact.phase}</span>
+        {
+          impact.next && (
+            <span class="phase phase--next">
+              <span class="dot" aria-hidden="true" />
+              <T value={impact.next} />
+            </span>
+          )
+        }
+      </div>
     </div>
   </div>
 </section>
@@ -85,6 +95,10 @@ const { impact } = Astro.props;
     filter: blur(80px);
     opacity: 0.35;
     pointer-events: none;
+  }
+  /* The copper glow is brighter than violet: keep it soft so the label above stays readable. */
+  :global([data-mode="build"]) .glow:not(.glow--b) {
+    opacity: 0.18;
   }
   .glow--b {
     width: 420px;
@@ -163,8 +177,10 @@ const { impact } = Astro.props;
   .stat:nth-child(3n) {
     --c: #ffffff;
   }
+  /* Pushed to the bottom of each tile so the three bars line up, whatever the text above. */
   .bar {
     display: block;
+    margin-top: auto;
   }
   .track {
     fill: rgba(255, 255, 255, 0.1);
@@ -191,6 +207,40 @@ const { impact } = Astro.props;
     padding: 8px 14px;
     border-radius: var(--radius-sm);
     border: 1px solid rgba(255, 255, 255, 0.22);
+  }
+  .phases {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+  }
+  .phase--next {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--dark-ink);
+  }
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--dark-accent);
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    50% {
+      opacity: 0.35;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .dot {
+      animation: none;
+    }
+  }
+  @media (max-width: 700px) {
+    .phases {
+      align-items: flex-start;
+    }
   }
   .phase {
     font-family: var(--font-mono);

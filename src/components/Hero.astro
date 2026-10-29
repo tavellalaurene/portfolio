@@ -12,7 +12,7 @@ const slug = (s: string) => s.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "-").rep
 
 // Each layer is pinned to its own mode: the divider reveals one over the other.
 const layers: { mode: Mode; kicker: string }[] = [
-  { mode: "lead", kicker: `${site.role} · ${site.org} · ${site.city}` },
+  { mode: "lead", kicker: `${site.role} at ${site.org}, ${site.city}` },
   { mode: "build", kicker: `role: "${slug(site.role)}" · org: "${slug(site.org)}" · loc: "${slug(site.city)}"` },
 ];
 ---
@@ -63,7 +63,7 @@ const layers: { mode: Mode; kicker: string }[] = [
         aria-valuemax="100"
         aria-valuenow="88"
         aria-valuetext="Lead mode"
-        hidden
+        data-js-only
         data-handle
       >
         <span aria-hidden="true">‹ ›</span>
@@ -116,7 +116,6 @@ const layers: { mode: Mode; kicker: string }[] = [
       render();
     };
 
-    handle.hidden = false;
     render();
     exposeLayers(getMode());
 
@@ -291,9 +290,6 @@ const layers: { mode: Mode; kicker: string }[] = [
     border: 1px solid rgba(255, 255, 255, 0.75);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
     backdrop-filter: blur(14px);
-  }
-  .handle[hidden] {
-    display: none;
   }
   .handle:focus-visible {
     outline: 3px solid var(--accent);

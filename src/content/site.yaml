@@ -8,12 +8,15 @@
 - id: site
   name: Laurène Tavella
   role: Development Team Lead
-  org: Dpt.
+  org: Dpt
   city: Montréal
-  description: Engineering leader in backend, APIs and Unity full stack. I lead a team of 10 and drive AI adoption across the whole company.
+  description: Software engineering leader in backend, APIs and Unity full stack. I lead a team of 10 and drive AI adoption across the whole company.
 
-  # Add the full URLs when ready, e.g. https://www.linkedin.com/in/...
-  links: {}
+  # Buttons only appear for the links that are filled in.
+  # GitHub is left out until there is public work to show: uncomment to add it.
+  links:
+    linkedin: https://www.linkedin.com/in/laur%C3%A8ne-t-939635173/
+    # github: https://github.com/tavellalaurene
 
   hero:
     headline:
@@ -23,7 +26,7 @@
       accent:
         lead: I ship code.
         build: "&& ship --code"
-    intro: Engineering leader in backend, APIs and Unity full stack. I lead a team of 10 and drive AI adoption across the whole company.
+    intro: Software engineering leader in backend, APIs and Unity full stack. I lead a team of 10 and drive AI adoption across the whole company.
 
   scope:
     heading:
@@ -47,10 +50,6 @@
         label:
           lead: "teams: dev, design, prod, direction"
           build: teams_reached
-      - value: Director of Production
-        label:
-          lead: I report to
-          build: reports_to
     cards:
       - title:
           lead: Lead the dev team
@@ -63,7 +62,7 @@
       - title:
           lead: Stay hands-on
           build: ship(code)
-        body: Backend, APIs and Unity full stack. I still write, review and ship code.
+        body: Web full stack apps, Unity prototypes, architecture. I still write, review and ship code.
 
   impact:
     heading:
@@ -75,6 +74,9 @@
         build: --phase 1
     intro: I lead the company’s AI adoption program, built on people’s real tasks instead of generic demos. I also created the organization’s first adoption measures.
     phase: Phase 1 · 3 months
+    next:
+      lead: "Phase 2 · ongoing, results coming soon"
+      build: "phase_2 · running · results --soon"
     stats:
       - value: 100%
         label: participation
@@ -105,7 +107,10 @@
       accent:
         lead: and shipping.
         build: --deploys
-    intro: Museums, festivals, public spaces and games, from Montréal to Singapore.
+    intro: Museums, festivals and games, from Montréal to Singapore.
+    more:
+      lead: "More projects on the way: this site is a work in progress."
+      build: "// more commits incoming · status: work in progress"
 
   contact:
     heading:

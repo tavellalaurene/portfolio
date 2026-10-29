@@ -39,10 +39,13 @@ const site = defineCollection({
       heading,
       intro: text,
       phase: z.string(),
+      // What is happening now, shown under the phase (optional).
+      next: text.optional(),
       stats: z.array(z.object({ value: z.string(), label: text, base: text.optional() })),
       methods: z.array(text),
     }),
-    work: z.object({ heading, intro: text }),
+    // `more` closes the project grid, e.g. to say more work is on the way (optional).
+    work: z.object({ heading, intro: text, more: text.optional() }),
     contact: z.object({ heading, intro: text.optional() }),
   }),
 });

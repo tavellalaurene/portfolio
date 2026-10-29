@@ -39,6 +39,11 @@ jobs:
       - name: Content, privacy and wording checks, build, checks on the built site
         run: npm run verify
 
+      - name: Browser tests (modes, divider, filters, console, accessibility, security policy)
+        run: |
+          npx playwright install --with-deps chromium
+          npm test
+
       - name: Upload site for deployment
         if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v3

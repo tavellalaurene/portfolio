@@ -53,15 +53,14 @@ const { scope } = Astro.props;
     flex-direction: column;
     gap: 32px;
   }
+  /* Same header layout as Impact: the intro sits under the heading, on one line when it fits. */
   .head {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: flex-end;
-    gap: 24px;
+    flex-direction: column;
+    gap: 20px;
   }
   .side {
-    max-width: 380px;
+    font-size: 18px;
   }
   ul {
     margin: 0;
@@ -115,7 +114,9 @@ const { scope } = Astro.props;
     font-size: 13px;
     color: var(--accent);
   }
+  /* Labels sit on the same line in every tile, even when a value wraps to two lines. */
   .kpi-label {
+    margin-top: auto;
     font-family: var(--font-label);
   }
   h3 {

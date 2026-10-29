@@ -50,6 +50,10 @@ const hasLinks = Boolean(links.linkedin || links.github);
   .last {
     padding-bottom: 40px;
   }
+  /* Leave room under the footer for the docked console button. */
+  :global([data-mode="build"]) .last {
+    padding-bottom: 112px;
+  }
   .panel > :not(.glow) {
     position: relative;
   }
